@@ -1,0 +1,24 @@
+{
+  "method": "resnet18",
+  "seed": 2026,
+  "epochs": 10,
+  "batch_size": 64,
+  "input_size": 128,
+  "lr": 0.0003,
+  "weight_decay": 0.0001,
+  "optimizer": "AdamW",
+  "scheduler": "cosine",
+  "pretrained": true,
+  "classes": [
+    "Tomato___Bacterial_spot",
+    "Tomato___Early_blight",
+    "Tomato___Late_blight",
+    "Tomato___Leaf_Mold",
+    "Tomato___Septoria_leaf_spot",
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+    "Tomato___healthy"
+  ],
+  "parameters": 11180103,
+  "checkpoint_rule": "maximum validation macro_f1; earliest on tie",
+  "manifest_sha256": "32f8165981d26b1dbb8880747f25f194beb3c8d538098fb1d67075beb446ebdf"
+}

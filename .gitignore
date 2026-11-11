@@ -1,0 +1,14 @@
+data/
+cache/
+source_metadata/
+__pycache__/
+.authoring_deps/
+*.pt
+*.tar.gz
+*.zip
+*.log
+qa/
+render/
+*.docx
+*.pdf
+!figures/*.pdf

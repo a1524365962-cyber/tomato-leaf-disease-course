@@ -1,0 +1,9 @@
+{
+  "python": "3.10.13",
+  "torch": "2.3.0+cu118",
+  "cuda": "11.8",
+  "device": "NVIDIA GeForce RTX 4090",
+  "physical_gpu": "CUDA_VISIBLE_DEVICES=1",
+  "n_cpu_threads": 4,
+  "cuda_memory_fraction": 0.25
+}

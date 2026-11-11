@@ -1,0 +1,56 @@
+[
+  {
+    "run": "cnn_seed2026",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9277777777777778
+  },
+  {
+    "run": "cnn_seed2027",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.924074074074074
+  },
+  {
+    "run": "cnn_seed2028",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9185185185185185
+  },
+  {
+    "run": "resnet18_aug_seed2026",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9777777777777777
+  },
+  {
+    "run": "resnet18_aug_seed2027",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9629629629629629
+  },
+  {
+    "run": "resnet18_aug_seed2028",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9888888888888889
+  },
+  {
+    "run": "resnet18_seed2026",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9629629629629629
+  },
+  {
+    "run": "resnet18_seed2027",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9740740740740741
+  },
+  {
+    "run": "resnet18_seed2028",
+    "n": 540,
+    "predictions_identical": true,
+    "accuracy": 0.9703703703703703
+  }
+]

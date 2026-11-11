@@ -1,0 +1,160 @@
+"""Build the bilingual two-column paper from audited experimental outputs."""
+import json
+from pathlib import Path
+from docx import Document
+from docx.shared import Mm, Inches, Pt, RGBColor
+from docx.enum.section import WD_SECTION_START
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+
+ROOT=Path(__file__).resolve().parent
+OUT=ROOT/'deliverables';OUT.mkdir(exist_ok=True)
+S=json.loads((ROOT/'results_summary.json').read_text())
+D=json.loads((ROOT/'data_summary.json').read_text())
+A=json.loads((ROOT/'audit.json').read_text());assert A['validated_runs']==9
+assert S['n_runs']==9
+doc=Document(); text_blocks=[]
+
+def font(style,size,bold=False,cn='宋体'):
+    s=doc.styles[style];s.font.name='Times New Roman';s.font.size=Pt(size);s.font.bold=bold;s.font.color.rgb=RGBColor(0,0,0)
+    s.element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),cn)
+font('Normal',10)
+font('Title',18,False,'黑体')
+font('Heading 1',10.5,True,'黑体');font('Heading 2',10,True,'黑体')
+normal=doc.styles['Normal'].paragraph_format;normal.line_spacing=1.08;normal.space_after=Pt(3);normal.first_line_indent=Pt(20)
+for st in doc.styles:
+    if st.element.pPr is not None:
+        for border in list(st.element.pPr.findall(qn('w:pBdr'))): st.element.pPr.remove(border)
+for name in ['Heading 1','Heading 2']:
+    f=doc.styles[name].paragraph_format;f.space_before=Pt(7);f.space_after=Pt(4);f.first_line_indent=Pt(0);f.keep_with_next=True
+doc.styles['Heading 1'].paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER
+sec=doc.sections[0];sec.page_width=Mm(210);sec.page_height=Mm(297);sec.top_margin=Mm(18);sec.bottom_margin=Mm(18);sec.left_margin=Mm(17.3);sec.right_margin=Mm(17.3)
+sec.header_distance=Mm(7);sec.footer_distance=Mm(8)
+doc.core_properties.author='';doc.core_properties.last_modified_by='';doc.core_properties.title='基于迁移学习与数据增强的番茄叶片病害识别实验研究'
+
+def p(t,style=None,size=None,indent=True):
+    x=doc.add_paragraph(t,style);text_blocks.append(t)
+    if not indent:x.paragraph_format.first_line_indent=Pt(0)
+    if size:
+        for r in x.runs:r.font.size=Pt(size)
+    return x
+def heading(t,level=1):p(t,f'Heading {level}',indent=False)
+def metric(method,cond,key='macro_f1'):
+    x=S['methods'][method][cond][key];return f"{100*x['mean']:.2f} ± {100*x['sd']:.2f}"
+def table(caption,heads,rows,widths):
+    cp=p(caption,size=9,indent=False);cp.alignment=WD_ALIGN_PARAGRAPH.CENTER;cp.paragraph_format.keep_with_next=True
+    tab=doc.add_table(rows=1,cols=len(heads));tab.autofit=False
+    tab._tbl.tblPr.find(qn('w:tblW')).set(qn('w:w'),str(int(84.7/25.4*1440)));tab._tbl.tblPr.find(qn('w:tblW')).set(qn('w:type'),'dxa')
+    borders=OxmlElement('w:tblBorders')
+    for edge in ['top','left','bottom','right','insideH','insideV']:
+        e=OxmlElement('w:'+edge);e.set(qn('w:val'),'single');e.set(qn('w:sz'),'4');e.set(qn('w:color'),'D9D9D9');borders.append(e)
+    tab._tbl.tblPr.append(borders)
+    for i,h in enumerate(heads):tab.rows[0].cells[i].text=h
+    for row in rows:
+        cells=tab.add_row().cells
+        for i,v in enumerate(row):cells[i].text=str(v)
+    for ri,row in enumerate(tab.rows):
+        trpr=row._tr.get_or_add_trPr();cant=OxmlElement('w:cantSplit');trpr.append(cant)
+        if ri==0:
+            repeat=OxmlElement('w:tblHeader');trpr.append(repeat)
+        for i,c in enumerate(row.cells):
+            c.width=Mm(widths[i]);tcpr=c._tc.get_or_add_tcPr()
+            if ri==0:
+                shade=OxmlElement('w:shd');shade.set(qn('w:fill'),'F2F2F2');tcpr.append(shade)
+            for para in c.paragraphs:
+                para.paragraph_format.first_line_indent=Pt(0);para.paragraph_format.space_after=Pt(2);para.paragraph_format.space_before=Pt(2);para.paragraph_format.line_spacing=1
+                para.alignment=WD_ALIGN_PARAGRAPH.LEFT if i==0 else WD_ALIGN_PARAGRAPH.CENTER
+                for run in para.runs:run.font.size=Pt(8);run.font.bold=(ri==0)
+    text_blocks.append(caption+'\n'+' | '.join(heads)+'\n'+'\n'.join(' | '.join(map(str,row)) for row in rows))
+    p('',size=2,indent=False).paragraph_format.space_after=Pt(1)
+def figure(name,caption):
+    x=doc.add_paragraph();x.paragraph_format.first_line_indent=Pt(0);x.paragraph_format.keep_with_next=True;x.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    x.add_run().add_picture(str(ROOT/'figures'/f'{name}.png'),width=Mm(84))
+    y=p(caption,size=8.5,indent=False);y.paragraph_format.space_after=Pt(6)
+
+title=p('基于迁移学习与数据增强的\n番茄叶片病害识别实验研究','Title',indent=False);title.alignment=WD_ALIGN_PARAGRAPH.CENTER;title.paragraph_format.space_after=Pt(6)
+for border in list(title._p.get_or_add_pPr().findall(qn('w:pBdr'))): title._p.pPr.remove(border)
+en=p('An Experimental Study of Tomato Leaf Disease Recognition\nUsing Transfer Learning and Data Augmentation',size=12,indent=False);en.alignment=WD_ALIGN_PARAGRAPH.CENTER
+for t in ['姓名：________    学号：________','单位：________________________','Author: ________    Affiliation: ________________________']:
+    x=p(t,size=10,indent=False);x.alignment=WD_ALIGN_PARAGRAPH.CENTER;x.paragraph_format.space_after=Pt(2)
+body=doc.add_section(WD_SECTION_START.CONTINUOUS)
+cols=body._sectPr.find(qn('w:cols'));cols.set(qn('w:num'),'2');cols.set(qn('w:space'),'340')
+
+p('摘要  针对有限样本条件下番茄叶片病害的图像识别问题，本文在PlantVillage公开数据中构建七分类实验，对比从头训练的小型卷积神经网络、ImageNet预训练ResNet18以及加入几何和颜色增强的ResNet18。实验保留可核对叶片标识的3500张图像，按叶片标识共现关系合并为1799个互斥组，再划分为2448张训练图像、512张验证图像和540张测试图像。三种配置均训练10轮，并用三个随机种子重复。增强模型在原始测试集上的准确率为97.65%±1.30%，宏平均F1为97.59%±1.35%；相对未增强ResNet18，宏平均F1平均增加0.70个百分点，但种子间结果并不一致。在亮度降至原图60%的测试中，增强模型宏平均F1提高14.38个百分点；高斯模糊测试未呈现一致改善。结果表明，迁移学习与增强能够形成有效的受控图像分类方案，但增强收益取决于扰动类型，不能据此推断真实田间诊断能力。',size=9.5,indent=False)
+p('关键词  番茄叶片；病害识别；卷积神经网络；迁移学习；数据增强',size=9.5,indent=False)
+p('Abstract  This study investigates tomato leaf disease recognition with limited training data. A small convolutional neural network trained from scratch is compared with an ImageNet-pretrained ResNet18 and its augmented counterpart. A balanced subset of 3,500 PlantVillage images is restricted to seven classes with traceable leaf identities. Co-occurring identity labels are merged into 1,799 disjoint groups, producing 2,448 training, 512 validation, and 540 test images. Each configuration is trained for ten epochs with three random seeds, and checkpoints are selected by validation macro-F1 only. The augmented model achieves 97.65% ± 1.30% accuracy and 97.59% ± 1.35% macro-F1 on the clean test set. Its mean macro-F1 gain over unaugmented ResNet18 is 0.70 percentage points, with inconsistent seed-wise improvements. Under a brightness factor of 0.6, the paired mean gain is 14.38 percentage points, whereas Gaussian blur shows no consistent benefit. These findings support a practical controlled-image classification baseline but do not establish field diagnostic performance. Reported deviations quantify optimization-seed variability on a fixed split rather than uncertainty across farms or acquisition sites.',size=9.5,indent=False)
+p('Keywords  tomato leaves; disease recognition; convolutional neural network; transfer learning; data augmentation',size=9.5,indent=False)
+
+heading('I  引言')
+p('农作物叶片出现的斑点、霉斑和黄化等外观变化，为利用计算机视觉开展病害辅助识别提供了可观察信息。人工判断依赖经验，面向图像的分类模型则能够把叶片照片映射到预先定义的类别。PlantVillage项目公开了健康与患病叶片图像，为这类方法提供了可复现的数据来源[1,2]。不过，在背景相对统一的数据中取得较高识别率，并不等于模型已经适用于复杂田间环境。')
+p('对于课程实验，关键问题不仅是选择一个网络，还包括说明数据来自哪里、如何划分训练集和测试集、参数怎样优化以及结果能支持什么结论。一个物理叶片可能对应多张照片，直接随机分配图像会带来共享叶片信息的风险。因此，本文首先核对公开叶片标识并进行分组，再讨论模型性能，避免把划分便利性放在评估可信度之前。')
+p('本文围绕两个具体问题开展实验：在同一有限数据划分下，预训练ResNet18与小型CNN能取得怎样的识别表现；在保持ResNet18结构和优化设置一致时，常见的数据增强对原始、暗化和模糊图像分别产生何种影响。研究定位为可复现的应用比较，不提出新的网络结构，也不以单次最高测试分数作为主要结论。')
+
+heading('II  相关工作')
+p('Hughes和Salathé介绍了面向植物健康研究的开放图像资源[1]。Mohanty等进一步使用深度网络研究PlantVillage上的作物与病害分类[2]，说明受控叶片图像能够用于训练分类器。该工作同时讨论了数据采集条件变化带来的限制，因此本文把受控数据测试和外部场景验证明确区分，不直接与其完整38分类结果比较。')
+p('残差网络通过跳跃连接学习输入与目标映射之间的残差，缓解深层网络优化的困难[3]。在样本规模较小的任务中，预训练参数提供了一种可用的初始化方式。本文使用公开的ResNet18 ImageNet权重，对全部网络参数进行微调；与从头训练CNN的比较是完整配置比较，因为二者在模型规模、初始化和学习率上均存在差异。')
+p('数据增强通过改变训练图像的几何或颜色属性增加输入变化，常见方式包括翻转、旋转与颜色扰动[4]。这些变换是否有益，需要结合任务和测试条件判断。本文不把增强视为必然提升准确率的手段，而是设置同架构对照，并额外考察与颜色变化相关的暗化条件和未直接加入训练的模糊条件。优化器采用AdamW，其权重衰减与自适应梯度更新相分离[5]。')
+
+heading('III  数据与方法')
+heading('A  数据筛选和分组划分',2)
+p('数据取自原作者PlantVillage仓库的raw/color目录[2,6]，版本固定为7f7ecc7e1eaca78107e3affe7cb5abd9427e139a。原始番茄目录含10类共18160张图像。为保证划分可核查，本文仅保留文件标识能够匹配leaf-map.json的类别，排除无法通过本文匹配规则核对身份的靶斑病、花叶病毒病，并将红蜘蛛损伤排除在病害任务范围之外。七个保留类别中，可匹配候选共9735张，每类以种子2026确定性抽样500张。排除规则在训练前固定，不依据模型分数选择类别。')
+p('对一幅图像可能关联多个叶片标识的情况，本文将每个标识作为图节点的连接依据，通过并查集合并共享任一标识的图像，同时合并像素完全相同的图像。3500张样本最终形成1799个连通组。随后按类别分别打乱组顺序，将约70%、15%、15%的组分给训练、验证和测试集。由于各组图像数不同，实际图像比例并非严格的70∶15∶15。')
+cn=['细菌性斑点病','早疫病','晚疫病','叶霉病','斑枯病','黄化曲叶病毒病','健康叶片'];abbr=['BS','EB','LB','LM','SL','YL','H']
+classes=sorted(D['by_class'])
+table('表 I  七类样本及实际图像划分', ['类别','缩写','训练','验证','测试'], [[cn[i],abbr[i],D['by_class'][c]['train'],D['by_class'][c]['val'],D['by_class'][c]['test']] for i,c in enumerate(classes)]+[['合计','—',2448,512,540]],[30,10,15,15,14.7])
+p('独立审计逐项验证三个子集之间的路径、文件SHA256、像素SHA256及原子叶片标识交集均为零，并逐文件核对下载内容的哈希。当前抽样中未发现像素完全重复样本。该检查能够防止已知身份和完全重复图像跨集合，但并不保证所有视觉近重复都已识别；原始元数据缺漏仍是研究限制。')
+heading('B  分类模型与训练增强',2)
+p('小型CNN包含三个卷积模块，通道数依次为32、64和128。每个模块由3×3卷积、批归一化、ReLU和2×2最大池化组成，最后通过全局平均池化与七分类全连接层输出结果，共94375个参数。该模型从随机初始化开始训练，作为低容量参考配置。')
+p('ResNet18保留标准残差骨干[3]，以ImageNet预训练参数初始化，将最后的全连接层替换为七类输出，并对全部层进行微调，共11180103个参数。其残差单元可写为y=F(x,W)+x，其中F表示待学习的残差映射；维度改变时使用标准投影捷径。本文没有修改骨干结构。')
+p('所有输入先转为RGB并双线性缩放至128×128，再按ImageNet均值(0.485,0.456,0.406)和标准差(0.229,0.224,0.225)归一化。增强组仅在训练时增加水平翻转、垂直翻转、±20°随机旋转以及亮度、对比度、饱和度扰动，前两种翻转概率均为0.5。亮度和对比度因子范围为0.8至1.2，饱和度为0.9至1.1。旋转使用torchvision默认插值和黑色边界填充；验证和测试不执行随机增强。')
+heading('C  优化目标和模型选择',2)
+p('训练采用多分类交叉熵：L=−(1/N)Σᵢ log pᵢ,yᵢ，其中pᵢ,yᵢ为第i张样本真实类别的预测概率。三种模型均使用AdamW、批量64、权重衰减10⁻⁴和余弦学习率调度，固定训练10轮。小型CNN初始学习率为10⁻³，两种ResNet18均为3×10⁻⁴；不使用测试集调参。')
+p('每种配置分别采用2026、2027、2028三个训练种子，数据划分始终不变。每轮保存验证集指标，只保留验证宏平均F1最高的检查点；若并列则保留较早轮次。完成模型选择后，才对测试集及其扰动版本输出预测。ResNet18与增强ResNet18共享架构、预训练来源、学习率与训练轮数，因此该对照用于考察整套增强操作的作用，而不能区分某一种变换的独立贡献。')
+
+heading('IV  实验结果与分析')
+heading('A  实验设置和评价指标',2)
+p('实验在一张NVIDIA GeForce RTX 4090上执行，Python版本为3.10.13，PyTorch为2.3.0+cu118，torchvision为0.18.0。输入较小且样本量有限，实验采用FP32、4个CPU线程和2个数据加载进程。为减少对共享设备的影响，GPU内存分配上限设为可见设备的25%。硬件日志与训练历史随代码保存。')
+p('本文同时报告准确率和宏平均F1。第k类的F1按2TPₖ/(2TPₖ+FPₖ+FNₖ)计算，宏平均F1为七类F1的算术平均。无正预测或分母为零时按零处理。表中“均值±标准差”均来自三个训练种子，标准差按样本标准差计算。它反映固定划分下优化过程的变化，不是针对新农场或新设备的置信区间。')
+table('表 II  原始测试集性能与参数规模', ['配置','准确率/%','宏F1/%','参数/M'], [[label,metric(m,'clean','accuracy'),metric(m,'clean'),f"{S['methods'][m]['parameters']/1e6:.3f}"] for m,label in [('cnn','小型CNN'),('resnet18','ResNet18'),('resnet18_aug','ResNet18+增强')]],[25,23,23,13.7])
+heading('B  原始图像识别与收敛过程',2)
+p('如表II所示，小型CNN的平均准确率为92.35%，宏平均F1为92.26%；未增强ResNet18分别达到96.91%和96.89%。预训练残差网络这一完整配置表现更好，但不能把差异全部归因于网络深度或迁移学习中的某个单一因素，因为参数规模与学习率也同时变化。')
+p('增强ResNet18的平均准确率和宏平均F1分别为97.65%和97.59%。相对未增强ResNet18，三个种子的配对宏F1差值为+1.40、−1.18和+1.89个百分点，平均为+0.70个百分点，样本标准差为1.65个百分点。因此，干净图像上的平均收益较小，且不是每个种子都改善；本文不将其表述为统计显著提升。')
+figure('validation_curve','图 1  验证集宏平均F1随轮次的变化。曲线为三个种子的均值，阴影为±1个样本标准差；三次实验共享同一数据划分。')
+p('图1显示，两个预训练配置在早期轮次已达到较高验证分数，小型CNN则需要更多轮次逐步提升。增强使输入变化增加，最初的验证分数不一定更高。验证分数接近饱和后仍以验证检查点规则决定最终模型，不固定选最后一轮，也不按测试分数挑选种子。')
+heading('C  类别误差分析',2)
+table('表 III  原始测试集各类F1百分比', ['类别','小型CNN','ResNet18','增强组'], [[abbr[i]]+[f"{100*S['per_class'][m][c]['mean']:.2f}" for m in ['cnn','resnet18','resnet18_aug']] for i,c in enumerate(classes)],[18,22,22,22.7])
+p('表III给出三个种子的类别F1均值，完整逐种子精确率、召回率和混淆矩阵保存在实验文件中。总体分数掩盖了不同病害之间的差异，因此不能仅用一个准确率数字代替类别级分析。图2固定展示种子2026的增强模型，选择该种子是为了提供可复核实例，而不是因为其测试分数最高。')
+figure('confusion_seed2026','图 2  增强ResNet18在原始测试集上的混淆矩阵，固定种子2026。数值为图像张数；类别缩写见表I。该模型预测正确528/540张。')
+p('图2中，早疫病与晚疫病存在双向混淆，斑枯病也出现误判为其他斑点类或叶霉病的情况。这样的错误分布与多个类别都具有局部斑点特征的现象相容，但本实验没有进行病斑定位或专家复核，不能把这一解释当作已证实的病理机制。对高风险应用，仍需要进一步核查误判样本与类别标签。')
+heading('D  扰动测试与增强效果',2)
+p('为观察输入条件变化，本文在固定540张测试图像缩放后，分别施加半径1.5像素的高斯模糊，或将亮度乘以0.6，再进行相同归一化。扰动强度预先固定，模型权重不因测试条件重新训练。这两组样本是同一测试集的派生版本，不是独立采集的田间数据。')
+table('表 IV  不同测试条件下的宏F1百分比', ['配置','原始','高斯模糊','亮度0.6'], [[label]+[metric(m,c) for c in ['clean','blur','dark']] for m,label in [('cnn','小型CNN'),('resnet18','ResNet18'),('resnet18_aug','增强组')]],[21,21,21.5,21.2])
+p('在亮度0.6条件下，未增强ResNet18的宏F1降至81.45%，增强模型为95.83%，配对平均提高14.38个百分点，三个种子的差值均为正。这支持颜色与几何增强组合在本实验暗化条件下具有实际收益，但由于增强是组合操作，不能进一步断言全部收益仅由亮度抖动带来。')
+figure('paired_augmentation','图 3  增强组相对未增强ResNet18的配对宏F1变化。圆点为三个种子，黑色方块及误差线为均值±样本标准差，单位为百分点。')
+p('模糊测试给出了不同结果：未增强与增强ResNet18宏F1分别为67.23%和67.64%，三个种子的差值为−3.74、−2.10和+7.08个百分点。平均差值虽略大于零，但方向不一致，不能认为增强稳定解决了模糊问题。训练增强未直接包含模糊变换，而模糊会降低局部纹理清晰度；后者是一种合理解释，仍需通过增加模糊增强的独立对照进一步检验。')
+
+heading('V  讨论与复现说明')
+p('本实验表明，实际图像识别任务需要同时报告可识别条件和失效条件。增强模型在原始受控图像上的分数较高，在暗化条件下仍保持较好表现，但模糊会使其宏F1明显下降。部署时因而不能仅依据干净测试集性能判断可靠性，更不能直接输出农药用量或防治方案。输入质量检查与低质量图像重新拍摄，是未来系统设计需要考虑的环节。')
+p('研究范围存在四点限制。首先，七类子集经过身份可追溯性筛选，并非完整番茄病害分布，按类抽样也不代表真实发病率。其次，图像主要来自统一采集背景，缺少独立地点、季节和设备的外部测试。再次，三个种子共享固定数据划分，无法估计划分变化的影响；本研究不做显著性检验。最后，本文没有进行逐种增强消融、病斑定位、模型校准或移动端延迟测试，不能对这些能力作出推断。')
+p('为便于复现，项目公开数据获取脚本、固定划分清单、SHA256记录、训练配置、每轮历史、逐图预测和三个配置各自的三个检查点。审计脚本从预测CSV重新计算混淆矩阵、准确率和宏F1，并与九次运行保存的结果逐项比对。单图预测脚本只接受可信项目权重，输出七类闭集预测；其softmax数值不应当作经过校准的诊断置信度。')
+p('代码与权重入口：https://github.com/a1524365962-cyber/tomato-leaf-disease-course 。原始数据从作者仓库获取，不随本项目重新分发。论文中的数值均来自冻结划分后的正式训练记录；训练协议、结果汇总及权重版本相互对应，避免把其他划分下的试运行指标混入正式结果。',size=9)
+
+heading('VI  结论')
+p('本文完成了七类番茄叶片识别的可复现实验，在3500张公开图像上比较小型CNN、预训练ResNet18及其增强版本，并采用叶片标识连通组划分控制已知数据泄漏。增强模型在540张原始测试图像上取得97.65%±1.30%的准确率，宏F1为97.59%±1.35%。在固定暗化测试中，增强相对同架构对照取得一致的种子级收益；在模糊测试中未观察到一致改善。由此可见，迁移学习与常见增强适合作为受控图像识别的实践起点，而其适用范围必须通过条件化评估加以限定。后续应引入独立田间图像、多划分验证和针对模糊的消融实验，再讨论应用部署。')
+heading('参考文献')
+refs=[
+'[1] D. P. Hughes and M. Salathé, “An open access repository of images on plant health to enable the development of mobile disease diagnostics,” arXiv:1511.08060, 2015, revised 2016. doi: 10.48550/arXiv.1511.08060.',
+'[2] S. P. Mohanty, D. P. Hughes, and M. Salathé, “Using Deep Learning for Image-Based Plant Disease Detection,” Frontiers in Plant Science, vol. 7, Art. 1419, 2016. doi: 10.3389/fpls.2016.01419.',
+'[3] K. He, X. Zhang, S. Ren, and J. Sun, “Deep Residual Learning for Image Recognition,” in Proceedings of CVPR, 2016, pp. 770–778. doi: 10.1109/CVPR.2016.90.',
+'[4] C. Shorten and T. M. Khoshgoftaar, “A survey on Image Data Augmentation for Deep Learning,” Journal of Big Data, vol. 6, Art. 60, 2019. doi: 10.1186/s40537-019-0197-0.',
+'[5] I. Loshchilov and F. Hutter, “Decoupled Weight Decay Regularization,” in ICLR, 2019. arXiv:1711.05101.',
+'[6] S. P. Mohanty et al., “PlantVillage-Dataset,” GitHub repository, commit 7f7ecc7e1eaca78107e3affe7cb5abd9427e139a. Available: https://github.com/spMohanty/PlantVillage-Dataset. Accessed: Nov. 11, 2026.'
+]
+for r in refs:
+    x=p(r,size=8.5,indent=False);x.paragraph_format.space_after=Pt(4)
+footer=body.footer.paragraphs[0];footer.alignment=WD_ALIGN_PARAGRAPH.CENTER
+field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');footer._p.append(field)
+target=OUT/'番茄叶片病害识别课程论文.docx';doc.save(target)
+(ROOT/'paper_text.md').write_text('\n\n'.join(text_blocks),encoding='utf-8')
+print(target)

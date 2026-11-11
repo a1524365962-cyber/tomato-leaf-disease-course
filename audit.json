@@ -1,0 +1,265 @@
+{
+  "split_checks": {
+    "path": {
+      "train_val": 0,
+      "train_test": 0,
+      "val_test": 0
+    },
+    "sha256": {
+      "train_val": 0,
+      "train_test": 0,
+      "val_test": 0
+    },
+    "pixel_sha256": {
+      "train_val": 0,
+      "train_test": 0,
+      "val_test": 0
+    },
+    "leaf_group": {
+      "train_val": 0,
+      "train_test": 0,
+      "val_test": 0
+    },
+    "atomic_leaf_ids": 1894
+  },
+  "raw_tomato_counts": {
+    "Tomato___Bacterial_spot": 2127,
+    "Tomato___Early_blight": 1000,
+    "Tomato___Late_blight": 1909,
+    "Tomato___Leaf_Mold": 952,
+    "Tomato___Septoria_leaf_spot": 1771,
+    "Tomato___Spider_mites Two-spotted_spider_mite": 1676,
+    "Tomato___Target_Spot": 1404,
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 5357,
+    "Tomato___Tomato_mosaic_virus": 373,
+    "Tomato___healthy": 1591
+  },
+  "selected_counts": {
+    "Tomato___Bacterial_spot": 500,
+    "Tomato___Early_blight": 500,
+    "Tomato___Late_blight": 500,
+    "Tomato___Leaf_Mold": 500,
+    "Tomato___Septoria_leaf_spot": 500,
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 500,
+    "Tomato___healthy": 500
+  },
+  "validated_runs": 9,
+  "metric_records": [
+    {
+      "method": "cnn",
+      "seed": 2026,
+      "condition": "clean",
+      "accuracy": 0.9277777777777778,
+      "macro_f1": 0.9271631875777491,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2026,
+      "condition": "blur",
+      "accuracy": 0.387037037037037,
+      "macro_f1": 0.35846124042577665,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2026,
+      "condition": "dark",
+      "accuracy": 0.35185185185185186,
+      "macro_f1": 0.2876782631686035,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2027,
+      "condition": "clean",
+      "accuracy": 0.924074074074074,
+      "macro_f1": 0.923766605418163,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2027,
+      "condition": "blur",
+      "accuracy": 0.39444444444444443,
+      "macro_f1": 0.35557634439773506,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2027,
+      "condition": "dark",
+      "accuracy": 0.32592592592592595,
+      "macro_f1": 0.25647661593358106,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2028,
+      "condition": "clean",
+      "accuracy": 0.9185185185185185,
+      "macro_f1": 0.9168444688198398,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2028,
+      "condition": "blur",
+      "accuracy": 0.4203703703703704,
+      "macro_f1": 0.3736228572766479,
+      "n": 540
+    },
+    {
+      "method": "cnn",
+      "seed": 2028,
+      "condition": "dark",
+      "accuracy": 0.3574074074074074,
+      "macro_f1": 0.3001944608152876,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2026,
+      "condition": "clean",
+      "accuracy": 0.9777777777777777,
+      "macro_f1": 0.977177263093486,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2026,
+      "condition": "blur",
+      "accuracy": 0.6888888888888889,
+      "macro_f1": 0.6482867276361777,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2026,
+      "condition": "dark",
+      "accuracy": 0.9555555555555556,
+      "macro_f1": 0.9535041361336324,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2027,
+      "condition": "clean",
+      "accuracy": 0.9629629629629629,
+      "macro_f1": 0.96178911706469,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2027,
+      "condition": "blur",
+      "accuracy": 0.7203703703703703,
+      "macro_f1": 0.6843034994213152,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2027,
+      "condition": "dark",
+      "accuracy": 0.9481481481481482,
+      "macro_f1": 0.9462082044010728,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2028,
+      "condition": "clean",
+      "accuracy": 0.9888888888888889,
+      "macro_f1": 0.9887619092057189,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2028,
+      "condition": "blur",
+      "accuracy": 0.7055555555555556,
+      "macro_f1": 0.6967169532601807,
+      "n": 540
+    },
+    {
+      "method": "resnet18_aug",
+      "seed": 2028,
+      "condition": "dark",
+      "accuracy": 0.975925925925926,
+      "macro_f1": 0.9752527399361876,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2026,
+      "condition": "clean",
+      "accuracy": 0.9629629629629629,
+      "macro_f1": 0.9631949076034891,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2026,
+      "condition": "blur",
+      "accuracy": 0.7074074074074074,
+      "macro_f1": 0.6856696873237703,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2026,
+      "condition": "dark",
+      "accuracy": 0.8277777777777777,
+      "macro_f1": 0.7975150740232252,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2027,
+      "condition": "clean",
+      "accuracy": 0.9740740740740741,
+      "macro_f1": 0.9736311764737998,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2027,
+      "condition": "blur",
+      "accuracy": 0.7462962962962963,
+      "macro_f1": 0.7052893185259215,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2027,
+      "condition": "dark",
+      "accuracy": 0.8574074074074074,
+      "macro_f1": 0.8348184100033288,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2028,
+      "condition": "clean",
+      "accuracy": 0.9703703703703703,
+      "macro_f1": 0.9699117583566028,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2028,
+      "condition": "blur",
+      "accuracy": 0.6703703703703704,
+      "macro_f1": 0.6259467674390903,
+      "n": 540
+    },
+    {
+      "method": "resnet18",
+      "seed": 2028,
+      "condition": "dark",
+      "accuracy": 0.8537037037037037,
+      "macro_f1": 0.8110830255657042,
+      "n": 540
+    }
+  ]
+}

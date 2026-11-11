@@ -1,0 +1,56 @@
+{
+  "n_images": 3500,
+  "n_leaf_groups": 1799,
+  "split_counts": {
+    "train": 2448,
+    "val": 512,
+    "test": 540
+  },
+  "by_class": {
+    "Tomato___Bacterial_spot": {
+      "train": 362,
+      "val": 63,
+      "test": 75
+    },
+    "Tomato___Early_blight": {
+      "train": 352,
+      "val": 76,
+      "test": 72
+    },
+    "Tomato___Late_blight": {
+      "train": 346,
+      "val": 73,
+      "test": 81
+    },
+    "Tomato___Leaf_Mold": {
+      "train": 341,
+      "val": 78,
+      "test": 81
+    },
+    "Tomato___Septoria_leaf_spot": {
+      "train": 349,
+      "val": 79,
+      "test": 72
+    },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+      "train": 350,
+      "val": 71,
+      "test": 79
+    },
+    "Tomato___healthy": {
+      "train": 348,
+      "val": 72,
+      "test": 80
+    }
+  },
+  "mapped_candidates": {
+    "Tomato___Bacterial_spot": 2127,
+    "Tomato___Early_blight": 999,
+    "Tomato___Late_blight": 920,
+    "Tomato___Leaf_Mold": 952,
+    "Tomato___Septoria_leaf_spot": 1000,
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 2738,
+    "Tomato___healthy": 999
+  },
+  "exact_pixel_duplicate_count": 0
+}
