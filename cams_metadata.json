@@ -1,0 +1,48 @@
+{
+  "cases": [
+    {
+      "path": "data/Tomato___Bacterial_spot/0f6384da-7338-4309-b6b2-0d4b1dfe9de3___GCREC_Bact.Sp 6039.JPG",
+      "condition": "dark",
+      "rule": "rescue",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Early_blight",
+      "augmented": "Tomato___Bacterial_spot",
+      "baseline_cam_forward": "Tomato___Early_blight",
+      "augmented_cam_forward": "Tomato___Bacterial_spot"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/7007e815-078b-4025-8aaf-89570d8300c4___UF.GRC_BS_Lab Leaf 1203.JPG",
+      "condition": "dark",
+      "rule": "rescue",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Early_blight",
+      "augmented": "Tomato___Bacterial_spot",
+      "baseline_cam_forward": "Tomato___Early_blight",
+      "augmented_cam_forward": "Tomato___Bacterial_spot"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/02a0f70a-9e27-420e-93ff-6ed8105f41c1___GCREC_Bact.Sp 3570.JPG",
+      "condition": "blur",
+      "rule": "failure",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Septoria_leaf_spot",
+      "augmented": "Tomato___Septoria_leaf_spot",
+      "baseline_cam_forward": "Tomato___Septoria_leaf_spot",
+      "augmented_cam_forward": "Tomato___Septoria_leaf_spot"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/083959e5-833b-4c10-9215-0b0aca81c8ca___UF.GRC_BS_Lab Leaf 0297.JPG",
+      "condition": "blur",
+      "rule": "failure",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Bacterial_spot",
+      "augmented": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+      "baseline_cam_forward": "Tomato___Bacterial_spot",
+      "augmented_cam_forward": "Tomato___Tomato_Yellow_Leaf_Curl_Virus"
+    }
+  ],
+  "target": "ground-truth class for both models, post-hoc analysis only",
+  "layer": "layer4 (4x4 at input 128)",
+  "normalization": "per-image min-max, not comparable magnitude across images",
+  "seed": 2026
+}

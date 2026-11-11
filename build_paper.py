@@ -31,9 +31,10 @@ for name in ['Heading 1','Heading 2']:
 doc.styles['Heading 1'].paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER
 sec=doc.sections[0];sec.page_width=Mm(210);sec.page_height=Mm(297);sec.top_margin=Mm(18);sec.bottom_margin=Mm(18);sec.left_margin=Mm(17.3);sec.right_margin=Mm(17.3)
 sec.header_distance=Mm(7);sec.footer_distance=Mm(8)
-doc.core_properties.author='';doc.core_properties.last_modified_by='';doc.core_properties.title='基于迁移学习与数据增强的番茄叶片病害识别实验研究'
+doc.core_properties.author='';doc.core_properties.last_modified_by='';doc.core_properties.title='基于卷积神经网络的农作物叶片病害识别'
 
 def p(t,style=None,size=None,indent=True):
+    t=t.replace('图1显示','图3显示').replace('图2固定','图4固定').replace('图2中','图4中')
     x=doc.add_paragraph(t,style);text_blocks.append(t)
     if not indent:x.paragraph_format.first_line_indent=Pt(0)
     if size:
@@ -69,13 +70,22 @@ def table(caption,heads,rows,widths):
     text_blocks.append(caption+'\n'+' | '.join(heads)+'\n'+'\n'.join(' | '.join(map(str,row)) for row in rows))
     p('',size=2,indent=False).paragraph_format.space_after=Pt(1)
 def figure(name,caption):
+    if name in ['validation_curve','confusion_seed2026','paired_augmentation']:
+        caption=caption.replace('图 1','图 3').replace('图 2','图 4').replace('图 3  增强组','图 5  增强组')
     x=doc.add_paragraph();x.paragraph_format.first_line_indent=Pt(0);x.paragraph_format.keep_with_next=True;x.alignment=WD_ALIGN_PARAGRAPH.CENTER
     x.add_run().add_picture(str(ROOT/'figures'/f'{name}.png'),width=Mm(84))
     y=p(caption,size=8.5,indent=False);y.paragraph_format.space_after=Pt(6)
 
-title=p('基于迁移学习与数据增强的\n番茄叶片病害识别实验研究','Title',indent=False);title.alignment=WD_ALIGN_PARAGRAPH.CENTER;title.paragraph_format.space_after=Pt(6)
+def widefigure(name,caption):
+    s=doc.add_section(WD_SECTION_START.NEW_PAGE);s._sectPr.find(qn('w:cols')).set(qn('w:num'),'1')
+    x=doc.add_paragraph();x.paragraph_format.first_line_indent=Pt(0);x.paragraph_format.keep_with_next=True
+    x.add_run().add_picture(str(ROOT/'figures'/f'{name}.png'),width=Mm(175.4))
+    p(caption,size=9,indent=False)
+    s=doc.add_section(WD_SECTION_START.CONTINUOUS);s._sectPr.find(qn('w:cols')).set(qn('w:num'),'2');s._sectPr.find(qn('w:cols')).set(qn('w:space'),'340')
+
+title=p('基于卷积神经网络的\n农作物叶片病害识别','Title',indent=False);title.alignment=WD_ALIGN_PARAGRAPH.CENTER;title.paragraph_format.space_after=Pt(6)
 for border in list(title._p.get_or_add_pPr().findall(qn('w:pBdr'))): title._p.pPr.remove(border)
-en=p('An Experimental Study of Tomato Leaf Disease Recognition\nUsing Transfer Learning and Data Augmentation',size=12,indent=False);en.alignment=WD_ALIGN_PARAGRAPH.CENTER
+en=p('Crop Leaf Disease Recognition\nBased on Convolutional Neural Networks',size=12,indent=False);en.alignment=WD_ALIGN_PARAGRAPH.CENTER
 for t in ['姓名：________    学号：________','单位：________________________','Author: ________    Affiliation: ________________________']:
     x=p(t,size=10,indent=False);x.alignment=WD_ALIGN_PARAGRAPH.CENTER;x.paragraph_format.space_after=Pt(2)
 body=doc.add_section(WD_SECTION_START.CONTINUOUS)
@@ -96,6 +106,7 @@ p('Hughes和Salathé介绍了面向植物健康研究的开放图像资源[1]。
 p('残差网络通过跳跃连接学习输入与目标映射之间的残差，缓解深层网络优化的困难[3]。在样本规模较小的任务中，预训练参数提供了一种可用的初始化方式。本文使用公开的ResNet18 ImageNet权重，对全部网络参数进行微调；与从头训练CNN的比较是完整配置比较，因为二者在模型规模、初始化和学习率上均存在差异。')
 p('数据增强通过改变训练图像的几何或颜色属性增加输入变化，常见方式包括翻转、旋转与颜色扰动[4]。这些变换是否有益，需要结合任务和测试条件判断。本文不把增强视为必然提升准确率的手段，而是设置同架构对照，并额外考察与颜色变化相关的暗化条件和未直接加入训练的模糊条件。优化器采用AdamW，其权重衰减与自适应梯度更新相分离[5]。')
 
+widefigure('model_overview','图 1  本文实际实现的方法概览。（a）身份分组、训练增强与分类路径；交叉熵作用于分类输出，推理不使用随机增强。（b）128×128输入时ResNet18各阶段张量尺寸，顺序为通道×高×宽，以及标准残差块。图示组织参考[8,9]，内容据本文实现重绘，非新网络结构。')
 heading('III  数据与方法')
 heading('A  数据筛选和分组划分',2)
 p('数据取自原作者PlantVillage仓库的raw/color目录[2,6]，版本固定为7f7ecc7e1eaca78107e3affe7cb5abd9427e139a。原始番茄目录含10类共18160张图像。为保证划分可核查，本文仅保留文件标识能够匹配leaf-map.json的类别，排除无法通过本文匹配规则核对身份的靶斑病、花叶病毒病，并将红蜘蛛损伤排除在病害任务范围之外。七个保留类别中，可匹配候选共9735张，每类以种子2026确定性抽样500张。排除规则在训练前固定，不依据模型分数选择类别。')
@@ -103,6 +114,7 @@ p('对一幅图像可能关联多个叶片标识的情况，本文将每个标�
 cn=['细菌性斑点病','早疫病','晚疫病','叶霉病','斑枯病','黄化曲叶病毒病','健康叶片'];abbr=['BS','EB','LB','LM','SL','YL','H']
 classes=sorted(D['by_class'])
 table('表 I  七类样本及实际图像划分', ['类别','缩写','训练','验证','测试'], [[cn[i],abbr[i],D['by_class'][c]['train'],D['by_class'][c]['val'],D['by_class'][c]['test']] for i,c in enumerate(classes)]+[['合计','—',2448,512,540]],[30,10,15,15,14.7])
+figure('leaf_examples','图 2  七类真实训练样本，缩写见表I。每类按文件名排序取第一张，不按识别效果筛选。图像来自PlantVillage作者[2,6]；样本拼图依CC BY-SA 3.0使用。')
 p('独立审计逐项验证三个子集之间的路径、文件SHA256、像素SHA256及原子叶片标识交集均为零，并逐文件核对下载内容的哈希。当前抽样中未发现像素完全重复样本。该检查能够防止已知身份和完全重复图像跨集合，但并不保证所有视觉近重复都已识别；原始元数据缺漏仍是研究限制。')
 heading('B  分类模型与训练增强',2)
 p('小型CNN包含三个卷积模块，通道数依次为32、64和128。每个模块由3×3卷积、批归一化、ReLU和2×2最大池化组成，最后通过全局平均池化与七分类全连接层输出结果，共94375个参数。该模型从随机初始化开始训练，作为低容量参考配置。')
@@ -134,6 +146,10 @@ p('在亮度0.6条件下，未增强ResNet18的宏F1降至81.45%，增强模型�
 figure('paired_augmentation','图 3  增强组相对未增强ResNet18的配对宏F1变化。圆点为三个种子，黑色方块及误差线为均值±样本标准差，单位为百分点。')
 p('模糊测试给出了不同结果：未增强与增强ResNet18宏F1分别为67.23%和67.64%，三个种子的差值为−3.74、−2.10和+7.08个百分点。平均差值虽略大于零，但方向不一致，不能认为增强稳定解决了模糊问题。训练增强未直接包含模糊变换，而模糊会降低局部纹理清晰度；后者是一种合理解释，仍需通过增加模糊增强的独立对照进一步检验。')
 
+widefigure('gradcam_cases','图 6  真实测试样本及两模型的真实类别Grad-CAM[7]，均来自种子2026的验证选定权重。（a）暗化后基线误判而增强组正确的例子；（b）模糊后两模型均错误的例子。左列为实际128×128输入，标题给出真实类别与各模型预测；热图由layer4的4×4激活双线性上采样，逐图min-max归一化，暖色代表相对更高激活。两行均是按预先写明规则选取的示例，不代表总体平均。原图来源同图2；样本及派生解释拼图依CC BY-SA 3.0使用。')
+heading('E  基于真实权重的定性解释',2)
+p('为补充数值结果，本文依Grad-CAM[7]对最后一个残差阶段layer4求解释图。以同一真实类别的输出分数对该层特征求梯度，对梯度进行空间平均得到通道权重，再对加权特征和取ReLU。真实标签只用于事后解释目标，不参与部署推理。为保证与原评估一致，保留测试批次和预处理，所示两模型类别预测已与保存记录核对。')
+p('图6上行的暗化样本真实类别为细菌性斑点病，基线预测为早疫病，增强模型预测正确；下行模糊样本同属细菌性斑点病，但两模型均预测为斑枯病。两种模型都可能产生覆盖较大区域的激活，不能根据热图颜色直接断言模型已准确定位病斑。由于最后特征图只有4×4，插值后的边界不具有像素级分割意义；各图归一化也不支持跨图激活强度比较。')
 heading('V  讨论与复现说明')
 p('本实验表明，实际图像识别任务需要同时报告可识别条件和失效条件。增强模型在原始受控图像上的分数较高，在暗化条件下仍保持较好表现，但模糊会使其宏F1明显下降。部署时因而不能仅依据干净测试集性能判断可靠性，更不能直接输出农药用量或防治方案。输入质量检查与低质量图像重新拍摄，是未来系统设计需要考虑的环节。')
 p('研究范围存在四点限制。首先，七类子集经过身份可追溯性筛选，并非完整番茄病害分布，按类抽样也不代表真实发病率。其次，图像主要来自统一采集背景，缺少独立地点、季节和设备的外部测试。再次，三个种子共享固定数据划分，无法估计划分变化的影响；本研究不做显著性检验。最后，本文没有进行逐种增强消融、病斑定位、模型校准或移动端延迟测试，不能对这些能力作出推断。')
@@ -153,8 +169,15 @@ refs=[
 ]
 for r in refs:
     x=p(r,size=8.5,indent=False);x.paragraph_format.space_after=Pt(4)
+for r in [
+'[7] R. R. Selvaraju et al., “Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization,” in ICCV, 2017, pp. 618–626. doi: 10.1109/ICCV.2017.74.',
+'[8] D. Singh, N. Jain, P. Jain, P. Kayal, S. Kumawat, and N. Batra, “PlantDoc: A Dataset for Visual Plant Disease Detection,” in CoDS COMAD, 2020, pp. 249–253. doi: 10.1145/3371158.3371196.',
+'[9] T. Wei, Z. Chen, Z. Huang, and X. Yu, “Benchmarking In-the-Wild Multimodal Plant Disease Recognition and A Versatile Baseline,” in ACM Multimedia, 2024. arXiv:2408.03120.'
+]:
+    x=p(r,size=8.5,indent=False);x.paragraph_format.space_after=Pt(4)
+end=doc.add_section(WD_SECTION_START.CONTINUOUS);end._sectPr.find(qn('w:cols')).set(qn('w:num'),'1')
 footer=body.footer.paragraphs[0];footer.alignment=WD_ALIGN_PARAGRAPH.CENTER
 field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');footer._p.append(field)
-target=OUT/'番茄叶片病害识别课程论文.docx';doc.save(target)
+target=OUT/'农作物叶片病害识别_配图增强版.docx';doc.save(target)
 (ROOT/'paper_text.md').write_text('\n\n'.join(text_blocks),encoding='utf-8')
 print(target)

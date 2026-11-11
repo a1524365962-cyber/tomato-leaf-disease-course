@@ -1,5 +1,17 @@
 # Tomato leaf disease course experiment
 
+## 配图增强版 v1.1
+
+论文保留原定题目《基于卷积神经网络的农作物叶片病害识别》，以七类番茄叶片为具体实验。参考了五组视觉论文/作者代码的配图表达，而非把其算法、图片或结果直接拼入本文。新增代码对应的方法概览、真实七类样本矩阵，以及由本项目正式权重计算的两模型Grad-CAM对比；数值实验和九个权重不变。
+
+![本项目方法概览](figures/model_overview.png)
+
+![真实权重定性解释](figures/gradcam_cases.png)
+
+全部论文/GitHub网址、参考图号与取舍理由见 [配图来源索引](FIGURE_REFERENCES.md)。Grad-CAM不是病斑分割，也不证明因果或定位准确性。热图解释目标为真实类别，只用于有标签的事后分析。
+
+新增图复现：在完整数据与九个权重已经恢复后，先运行 `python select_visuals.py`、`CUDA_VISIBLE_DEVICES=0 python extract_cams.py`，再安装制图依赖并运行 `python illustrate_paper.py`。样本及解释拼图以PlantVillage作者数据为来源，遵守其CC BY-SA 3.0署名/共享要求；本仓库未引入PlantDoc或PlantWild原始图像。
+
 Reproducible comparison of a small CNN, ImageNet-pretrained ResNet18, and the same ResNet18 with training-time augmentation. This is a course-scale comparison, not a novel architecture or a validated field diagnostic tool.
 
 ## Data

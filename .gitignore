@@ -9,6 +9,9 @@ __pycache__/
 *.log
 qa/
 render/
+render_v2/
+reference_render/
+cams.npz
 *.docx
 *.pdf
 !figures/*.pdf

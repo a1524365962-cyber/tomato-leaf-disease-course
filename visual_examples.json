@@ -1,0 +1,132 @@
+{
+  "training_examples": [
+    {
+      "source_path": "raw/color/Tomato___Bacterial_spot/01375198-62af-4c40-bddf-f3c11107200b___GCREC_Bact.Sp 5914.JPG",
+      "class_name": "Tomato___Bacterial_spot",
+      "leaf_group": "Tomato___Bacterial_spot:::321.0",
+      "path": "data/Tomato___Bacterial_spot/01375198-62af-4c40-bddf-f3c11107200b___GCREC_Bact.Sp 5914.JPG",
+      "sha256": "7c7e12d216ef0fa06857600e97d0e7182d8e33622a8801410f8fd4d206a09a3f",
+      "pixel_sha256": "83885137e6630884440d27a0c335c6c0035a0815b479d0fd9beccd5a95c77735",
+      "width": 256,
+      "height": 256,
+      "split": "train"
+    },
+    {
+      "source_path": "raw/color/Tomato___Early_blight/0034a551-9512-44e5-ba6c-827f85ecc688___RS_Erly.B 9432.JPG",
+      "class_name": "Tomato___Early_blight",
+      "leaf_group": "Tomato___Early_blight:::204.0",
+      "path": "data/Tomato___Early_blight/0034a551-9512-44e5-ba6c-827f85ecc688___RS_Erly.B 9432.JPG",
+      "sha256": "ec1e81f52511918a2f14ac0ef020a850b745230de9ef74485d505133af963525",
+      "pixel_sha256": "3e9c8c70745371d96e86c51bb0763c2cbeedbe9b3676f73e1c4a5565abd079dd",
+      "width": 256,
+      "height": 256,
+      "split": "train"
+    },
+    {
+      "source_path": "raw/color/Tomato___Late_blight/005e3b43-9050-47da-9498-f9ecdcc703b3___RS_Late.B 5104.JPG",
+      "class_name": "Tomato___Late_blight",
+      "leaf_group": "Tomato___Late_blight:::52.0",
+      "path": "data/Tomato___Late_blight/005e3b43-9050-47da-9498-f9ecdcc703b3___RS_Late.B 5104.JPG",
+      "sha256": "a9eebda1ea65fee7d9f42f975d8b30f962b7a12c9ffa4f38ac9d95b3eda549a3",
+      "pixel_sha256": "fa4a301aa52ec96ad98ebfb5b2e892f5566fed6f08c7966d0246a1243aaf67e8",
+      "width": 256,
+      "height": 256,
+      "split": "train"
+    },
+    {
+      "source_path": "raw/color/Tomato___Leaf_Mold/022a4dfb-84cc-45cb-81c5-a620817e31cb___Crnl_L.Mold 6926.JPG",
+      "class_name": "Tomato___Leaf_Mold",
+      "leaf_group": "Tomato___Leaf_Mold:::83.0",
+      "path": "data/Tomato___Leaf_Mold/022a4dfb-84cc-45cb-81c5-a620817e31cb___Crnl_L.Mold 6926.JPG",
+      "sha256": "72e03f8b57e0c2c883565d66b64eab0d30df4c043b8311f537a749f35a1b8257",
+      "pixel_sha256": "24ff7939cada0eb73e1f1a6941e99e405848273aea7d8d8df4cabde086a34b00",
+      "width": 256,
+      "height": 256,
+      "split": "train"
+    },
+    {
+      "source_path": "raw/color/Tomato___Septoria_leaf_spot/006c018a-bb21-4a24-b1ff-d8b2864a7354___Matt.S_CG 6192.JPG",
+      "class_name": "Tomato___Septoria_leaf_spot",
+      "leaf_group": "Tomato___Septoria_leaf_spot:::120.0",
+      "path": "data/Tomato___Septoria_leaf_spot/006c018a-bb21-4a24-b1ff-d8b2864a7354___Matt.S_CG 6192.JPG",
+      "sha256": "b9a0e88742ce84e648bfffc65df27a9bcfb65a43f9684d7296daee3ae40c8494",
+      "pixel_sha256": "500b9489d1d3db224e112c5f84c7fdd7e75a00b7037646688e66e92457a19dce",
+      "width": 256,
+      "height": 256,
+      "split": "train"
+    },
+    {
+      "source_path": "raw/color/Tomato___Tomato_Yellow_Leaf_Curl_Virus/003bce78-28c9-4612-b148-f621e9a23bd4___YLCV_GCREC 5154.JPG",
+      "class_name": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+      "leaf_group": "Tomato___Tomato_Yellow_Leaf_Curl_Virus:::273.0",
+      "path": "data/Tomato___Tomato_Yellow_Leaf_Curl_Virus/003bce78-28c9-4612-b148-f621e9a23bd4___YLCV_GCREC 5154.JPG",
+      "sha256": "5b0578e13408ec0fc12081e3e268c58022bcf965263d3da917d2848819051894",
+      "pixel_sha256": "ae4542c3a95bf9c616ec3352ca1d78c07cd10b0f1095d9f989123184bba05896",
+      "width": 256,
+      "height": 256,
+      "split": "train"
+    },
+    {
+      "source_path": "raw/color/Tomato___healthy/003944fc-3b99-4a0f-9ed4-0e07352fd8b3___RS_HL 9844.JPG",
+      "class_name": "Tomato___healthy",
+      "leaf_group": "Tomato___healthy:::214.0",
+      "path": "data/Tomato___healthy/003944fc-3b99-4a0f-9ed4-0e07352fd8b3___RS_HL 9844.JPG",
+      "sha256": "be6f8871878eb85d55b435e59fd3db57d3dcde7f29a13a57c93f35ed8c67247c",
+      "pixel_sha256": "b2008146b892d1a5536e5ea5c3d845f13ee969d6227bf4e87c46387f19974870",
+      "width": 256,
+      "height": 256,
+      "split": "train"
+    }
+  ],
+  "test_cases": [
+    {
+      "path": "data/Tomato___Bacterial_spot/0f6384da-7338-4309-b6b2-0d4b1dfe9de3___GCREC_Bact.Sp 6039.JPG",
+      "condition": "dark",
+      "rule": "rescue",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Early_blight",
+      "augmented": "Tomato___Bacterial_spot"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/7007e815-078b-4025-8aaf-89570d8300c4___UF.GRC_BS_Lab Leaf 1203.JPG",
+      "condition": "dark",
+      "rule": "rescue",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Early_blight",
+      "augmented": "Tomato___Bacterial_spot"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/02a0f70a-9e27-420e-93ff-6ed8105f41c1___GCREC_Bact.Sp 3570.JPG",
+      "condition": "blur",
+      "rule": "failure",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Septoria_leaf_spot",
+      "augmented": "Tomato___Septoria_leaf_spot"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/083959e5-833b-4c10-9215-0b0aca81c8ca___UF.GRC_BS_Lab Leaf 0297.JPG",
+      "condition": "blur",
+      "rule": "failure",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Bacterial_spot",
+      "augmented": "Tomato___Tomato_Yellow_Leaf_Curl_Virus"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/2642e2b0-d2d8-49ea-b9c3-44133f863169___GCREC_Bact.Sp 5660.JPG",
+      "condition": "clean",
+      "rule": "failure",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Bacterial_spot",
+      "augmented": "Tomato___Early_blight"
+    },
+    {
+      "path": "data/Tomato___Bacterial_spot/a9d50751-cfaf-4743-93d9-25207fadb580___GCREC_Bact.Sp 3654.JPG",
+      "condition": "clean",
+      "rule": "failure",
+      "target": "Tomato___Bacterial_spot",
+      "baseline": "Tomato___Bacterial_spot",
+      "augmented": "Tomato___Early_blight"
+    }
+  ],
+  "selection": "lexicographic first per training class; first two matching cases per stated condition, seed 2026; illustrative not prevalence estimate"
+}
