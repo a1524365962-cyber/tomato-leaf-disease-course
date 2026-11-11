@@ -1,5 +1,11 @@
 # Tomato leaf disease course experiment
 
+## 结构图优化版 v1.2
+
+图1重新组织为三个面板：数据划分与训练/评估路径、ResNet18张量层级、残差块细节。增加真实训练叶片缩略图、增强示例和层叠张量插画，明确未增强基线旁路、仅训练使用的损失分支，以及独立残差加法节点。张量为结构示意，不是实测激活图；本次只调整图示与版面，不修改实验结果或权重。
+
+方法图提供 [SVG](figures/model_overview.svg)、[PDF](figures/model_overview.pdf) 和高分辨率PNG/TIFF；运行 `python render_model_overview.py` 可单独重绘。六页DOCX/PDF及图源文件见v1.2.0 Release。v1.0.0的九个模型权重仍适用。
+
 ## 配图增强版 v1.1
 
 论文保留原定题目《基于卷积神经网络的农作物叶片病害识别》，以七类番茄叶片为具体实验。参考了五组视觉论文/作者代码的配图表达，而非把其算法、图片或结果直接拼入本文。新增代码对应的方法概览、真实七类样本矩阵，以及由本项目正式权重计算的两模型Grad-CAM对比；数值实验和九个权重不变。
@@ -54,7 +60,7 @@ AI assistance was used for code generation, experiment orchestration, analysis a
 
 ## Paper and checkpoints
 
-The release contains an editable bilingual two-column DOCX, its checked four-page PDF and `trained_checkpoints.tar.gz` (all nine validation-selected checkpoints). Extract the checkpoint archive at the repository root to restore the `runs/<method>_seed<seed>/best.pt` paths. The archive SHA256 is `92285ee5a12593adb4eb6b98fa38fec6dead5164411951bf3ada73891f3fbe46`.
+The original v1.0.0 release contains the four-page paper and `trained_checkpoints.tar.gz` (all nine validation-selected checkpoints). The v1.1.0 and v1.2.0 illustrated revisions contain a checked six-page bilingual two-column DOCX/PDF. Extract the unchanged checkpoint archive at the repository root to restore the `runs/<method>_seed<seed>/best.pt` paths. The archive SHA256 is `92285ee5a12593adb4eb6b98fa38fec6dead5164411951bf3ada73891f3fbe46`.
 
 `verify_checkpoint.py` reloads all nine checkpoints on the original CUDA backend and checks all clean-set predictions against the recorded CSVs. All nine pass. Floating-point implementations differ between CPU and CUDA; bitwise identity and identical decisions for borderline cases across backends are not guaranteed.
 

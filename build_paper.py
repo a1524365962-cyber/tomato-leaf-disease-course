@@ -1,5 +1,6 @@
 """Build the bilingual two-column paper from audited experimental outputs."""
 import json
+import os
 from pathlib import Path
 from docx import Document
 from docx.shared import Mm, Inches, Pt, RGBColor
@@ -65,6 +66,8 @@ def table(caption,heads,rows,widths):
                 shade=OxmlElement('w:shd');shade.set(qn('w:fill'),'F2F2F2');tcpr.append(shade)
             for para in c.paragraphs:
                 para.paragraph_format.first_line_indent=Pt(0);para.paragraph_format.space_after=Pt(2);para.paragraph_format.space_before=Pt(2);para.paragraph_format.line_spacing=1
+                para.paragraph_format.keep_with_next=(ri<len(tab.rows)-1)
+                para.paragraph_format.keep_together=True
                 para.alignment=WD_ALIGN_PARAGRAPH.LEFT if i==0 else WD_ALIGN_PARAGRAPH.CENTER
                 for run in para.runs:run.font.size=Pt(8);run.font.bold=(ri==0)
     text_blocks.append(caption+'\n'+' | '.join(heads)+'\n'+'\n'.join(' | '.join(map(str,row)) for row in rows))
@@ -106,7 +109,7 @@ p('Hughes和Salathé介绍了面向植物健康研究的开放图像资源[1]。
 p('残差网络通过跳跃连接学习输入与目标映射之间的残差，缓解深层网络优化的困难[3]。在样本规模较小的任务中，预训练参数提供了一种可用的初始化方式。本文使用公开的ResNet18 ImageNet权重，对全部网络参数进行微调；与从头训练CNN的比较是完整配置比较，因为二者在模型规模、初始化和学习率上均存在差异。')
 p('数据增强通过改变训练图像的几何或颜色属性增加输入变化，常见方式包括翻转、旋转与颜色扰动[4]。这些变换是否有益，需要结合任务和测试条件判断。本文不把增强视为必然提升准确率的手段，而是设置同架构对照，并额外考察与颜色变化相关的暗化条件和未直接加入训练的模糊条件。优化器采用AdamW，其权重衰减与自适应梯度更新相分离[5]。')
 
-widefigure('model_overview','图 1  本文实际实现的方法概览。（a）身份分组、训练增强与分类路径；交叉熵作用于分类输出，推理不使用随机增强。（b）128×128输入时ResNet18各阶段张量尺寸，顺序为通道×高×宽，以及标准残差块。图示组织参考[8,9]，内容据本文实现重绘，非新网络结构。')
+widefigure('model_overview','图 1  两组ResNet18配置的数据与结构概览。（a）真实叶片缩略图、叶片身份分组及互斥的训练/验证/测试路径；仅增强组的训练图像进行随机增强，各路径均归一化。交叉熵读取7维logits，预测类别取argmax；验证宏F1选定检查点后再评估测试集。（b）特征张量尺寸按通道×高×宽列出，层叠面片为结构插画，并非实测激活或严格比例。（c）同尺寸恒等残差块及显式加法节点；第二至第四阶段入口采用投影捷径。图示组织参考[8,9]，内容按本文实现重绘，非新网络结构。')
 heading('III  数据与方法')
 heading('A  数据筛选和分组划分',2)
 p('数据取自原作者PlantVillage仓库的raw/color目录[2,6]，版本固定为7f7ecc7e1eaca78107e3affe7cb5abd9427e139a。原始番茄目录含10类共18160张图像。为保证划分可核查，本文仅保留文件标识能够匹配leaf-map.json的类别，排除无法通过本文匹配规则核对身份的靶斑病、花叶病毒病，并将红蜘蛛损伤排除在病害任务范围之外。七个保留类别中，可匹配候选共9735张，每类以种子2026确定性抽样500张。排除规则在训练前固定，不依据模型分数选择类别。')
@@ -178,6 +181,6 @@ for r in [
 end=doc.add_section(WD_SECTION_START.CONTINUOUS);end._sectPr.find(qn('w:cols')).set(qn('w:num'),'1')
 footer=body.footer.paragraphs[0];footer.alignment=WD_ALIGN_PARAGRAPH.CENTER
 field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');footer._p.append(field)
-target=OUT/'农作物叶片病害识别_配图增强版.docx';doc.save(target)
+target=OUT/(os.environ.get('PAPER_OUTPUT_STEM','农作物叶片病害识别_配图增强版')+'.docx');doc.save(target)
 (ROOT/'paper_text.md').write_text('\n\n'.join(text_blocks),encoding='utf-8')
 print(target)

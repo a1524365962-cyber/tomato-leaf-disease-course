@@ -10,6 +10,7 @@ __pycache__/
 qa/
 render/
 render_v2/
+render_v3/
 reference_render/
 cams.npz
 *.docx
