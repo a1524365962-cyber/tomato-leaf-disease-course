@@ -6,11 +6,11 @@
 
 | 材料 | 下载入口 | 说明 |
 |---|---|---|
-| 全面终审论文 Word | [paper_final_v1.3.1.docx](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/download/v1.3.1.0/paper_final_v1.3.1.docx) | 中文摘要、6图5表、4个原生公式，中文个人信息留空；英文题目保留 |
-| 论文 PDF | [paper_final_v1.3.1.pdf](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/download/v1.3.1.0/paper_final_v1.3.1.pdf) | 与Word同版导出 |
-| 源码与结果 | [source_and_results_v1.3.1.zip](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/download/v1.3.1.0/source_and_results_v1.3.1.zip) | 不含原始数据及权重 |
+| 全面终审论文 Word | [paper_final_v1.3.1.docx](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/download/v1.3.1/paper_final_v1.3.1.docx) | 中文摘要、6图5表、4个原生公式，中文个人信息留空；英文题目保留 |
+| 论文 PDF | [paper_final_v1.3.1.pdf](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/download/v1.3.1/paper_final_v1.3.1.pdf) | 与Word同版导出 |
+| 源码与结果 | [source_and_results_v1.3.1.zip](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/download/v1.3.1/source_and_results_v1.3.1.zip) | 不含原始数据及权重 |
 | 全部九个权重 | [trained_checkpoints.tar.gz](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/download/v1.0.0/trained_checkpoints.tar.gz) | 三个配置各三个种子，后续版本未改动 |
-| 下载校验及修订说明 | [v1.3.1.0 Release](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/tag/v1.3.1.0) | 论文、检查清单及SHA256 |
+| 下载校验及修订说明 | [v1.3.1 Release](https://github.com/a1524365962-cyber/tomato-leaf-disease-course/releases/tag/v1.3.1) | 论文、检查清单及SHA256 |
 
 权重归档共250,243,695字节，SHA256：
 
