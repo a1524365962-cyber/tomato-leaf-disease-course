@@ -11,6 +11,8 @@ qa/
 render/
 render_v2/
 render_v3/
+render_final/
+clean_check/
 reference_render/
 cams.npz
 *.docx

@@ -8,6 +8,10 @@ import platform
 import random
 import time
 from pathlib import Path
+from training_protocol import (
+    BATCH_SIZE, INPUT_SIZE, WEIGHT_DECAY, build_training_protocol,
+    learning_rate_for_method, validate_completed_run_config,
+)
 
 os.environ.setdefault('CUDA_VISIBLE_DEVICES', '1')
 os.environ.setdefault('OMP_NUM_THREADS', '4')
@@ -39,7 +43,7 @@ class Leaves(Dataset):
         self.tf = transforms.Compose(([transforms.RandomHorizontalFlip(), transforms.RandomVerticalFlip(), transforms.RandomRotation(20), transforms.ColorJitter(brightness=.2,contrast=.2,saturation=.1)] if augment else []) + [transforms.ToTensor(),transforms.Normalize([.485,.456,.406],[.229,.224,.225])])
         for r in rows:
             with Image.open(ROOT/r['path']) as im:
-                self.images.append(im.convert('RGB').resize((128,128),Image.Resampling.BILINEAR))
+                self.images.append(im.convert('RGB').resize((INPUT_SIZE,INPUT_SIZE),Image.Resampling.BILINEAR))
     def __len__(self):
         return len(self.rows)
     def __getitem__(self,i):
@@ -88,8 +92,18 @@ def run(method,seed,rows,epochs):
     out.mkdir(parents=True,exist_ok=True)
     if (out/'test.json').exists():
         old=json.loads((out/'config.json').read_text())
-        assert old['manifest_sha256']==hashlib.sha256((ROOT/'manifest.json').read_bytes()).hexdigest(), 'completed run belongs to another split'
-        assert old['epochs']==epochs, 'completed run has another training budget'
+        # Count the current CPU architecture without downloading pretrained
+        # weights or advancing the RNG used by any subsequent real training.
+        with torch.random.fork_rng(devices=[]):
+            probe=make_model(method,pretrained=False)
+            parameters=sum(p.numel() for p in probe.parameters())
+        del probe
+        expected=build_training_protocol(
+            method=method,seed=seed,epochs=epochs,classes=CLASSES,
+            parameters=parameters,
+            manifest_sha256=hashlib.sha256((ROOT/'manifest.json').read_bytes()).hexdigest(),
+        )
+        validate_completed_run_config(old,expected,run_name=out.name)
         print('already complete',out.name,flush=True); return
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.benchmark=False
@@ -98,14 +112,18 @@ def run(method,seed,rows,epochs):
     valrows=[r for r in rows if r['split']=='val']
     testrows=[r for r in rows if r['split']=='test']
     generator=torch.Generator().manual_seed(seed)
-    train=DataLoader(Leaves(trainrows,method=='resnet18_aug'),batch_size=64,shuffle=True,num_workers=2,pin_memory=True,generator=generator)
-    val=DataLoader(Leaves(valrows),batch_size=64,num_workers=2,pin_memory=True)
+    train=DataLoader(Leaves(trainrows,method=='resnet18_aug'),batch_size=BATCH_SIZE,shuffle=True,num_workers=2,pin_memory=True,generator=generator)
+    val=DataLoader(Leaves(valrows),batch_size=BATCH_SIZE,num_workers=2,pin_memory=True)
     device=torch.device('cuda:0')
     model=make_model(method).to(device)
-    lr=.001 if method=='cnn' else .0003
-    opt=torch.optim.AdamW(model.parameters(),lr=lr,weight_decay=.0001)
+    lr=learning_rate_for_method(method)
+    opt=torch.optim.AdamW(model.parameters(),lr=lr,weight_decay=WEIGHT_DECAY)
     sched=torch.optim.lr_scheduler.CosineAnnealingLR(opt,T_max=epochs)
-    config={'method':method,'seed':seed,'epochs':epochs,'batch_size':64,'input_size':128,'lr':lr,'weight_decay':.0001,'optimizer':'AdamW','scheduler':'cosine','pretrained':method!='cnn','classes':CLASSES,'parameters':sum(p.numel() for p in model.parameters()),'checkpoint_rule':'maximum validation macro_f1; earliest on tie','manifest_sha256':hashlib.sha256((ROOT/'manifest.json').read_bytes()).hexdigest()}
+    config=build_training_protocol(
+        method=method,seed=seed,epochs=epochs,classes=CLASSES,
+        parameters=sum(p.numel() for p in model.parameters()),
+        manifest_sha256=hashlib.sha256((ROOT/'manifest.json').read_bytes()).hexdigest(),
+    )
     (out/'config.json').write_text(json.dumps(config,indent=2))
     best=-1.; start=time.perf_counter(); history=[]
     for epoch in range(1,epochs+1):
@@ -133,7 +151,7 @@ def run(method,seed,rows,epochs):
     model.load_state_dict(ck['model'])
     results={'best_epoch':ck['epoch'],'train_seconds':train_seconds}
     for condition in ('clean','blur','dark'):
-        loader=DataLoader(Leaves(testrows,condition=condition),batch_size=64,num_workers=2,pin_memory=True)
+        loader=DataLoader(Leaves(testrows,condition=condition),batch_size=BATCH_SIZE,num_workers=2,pin_memory=True)
         m,yy,pp,conf=evaluate(model,loader,device)
         results[condition]=m
         with (out/f'predictions_{condition}.csv').open('w',newline='') as f:

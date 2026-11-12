@@ -1,0 +1,2 @@
+# This file is bound by SHA256 in every completed run. Preserve LF on Windows.
+manifest.json text eol=lf

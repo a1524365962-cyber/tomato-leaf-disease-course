@@ -17,7 +17,48 @@ META = ROOT / 'source_metadata'
 def git(*args):
     return subprocess.check_output(['git', '-C', str(META), *args])
 
+def restore_frozen_manifest(manifest_path):
+    """Restore exact published files without rewriting a frozen split."""
+    frozen=json.loads(manifest_path.read_text(encoding='utf-8'))
+    commit=frozen['commit']
+    if commit != '7f7ecc7e1eaca78107e3affe7cb5abd9427e139a':
+        raise ValueError('frozen manifest has an unexpected source commit')
+    def restore(row):
+        dest=(ROOT/row['path']).resolve()
+        if not dest.is_relative_to((ROOT/'data').resolve()):
+            raise ValueError('frozen data path is outside data/')
+        if dest.exists():
+            content=dest.read_bytes()
+        else:
+            url='https://raw.githubusercontent.com/spMohanty/PlantVillage-Dataset/'+commit+'/'+urllib.parse.quote(row['source_path'])
+            for attempt in range(5):
+                try:
+                    content=urllib.request.urlopen(url,timeout=40).read()
+                    break
+                except (OSError,TimeoutError):
+                    if attempt==4: raise
+                    time.sleep(1+attempt)
+        if hashlib.sha256(content).hexdigest()!=row['sha256']:
+            raise ValueError('original image SHA256 mismatch: '+row['path'])
+        with Image.open(io.BytesIO(content)) as source:
+            im=source.convert('RGB');im.load()
+        if hashlib.sha256(im.tobytes()).hexdigest()!=row['pixel_sha256']:
+            raise ValueError('decoded pixel SHA256 mismatch; use the recorded Pillow 9.4.0 decoder: '+row['path'])
+        if (im.width,im.height)!=(row['width'],row['height']):
+            raise ValueError('image dimensions mismatch: '+row['path'])
+        if not dest.exists():
+            dest.parent.mkdir(parents=True,exist_ok=True)
+            dest.write_bytes(content)
+    with cf.ThreadPoolExecutor(max_workers=12) as pool:
+        for i,_ in enumerate(pool.map(restore,frozen['rows'])):
+            if i%200==0: print('restored/verified',i+1,'/',len(frozen['rows']),flush=True)
+    print('Frozen manifest preserved; no selection or split was regenerated.',flush=True)
+
 def main():
+    manifest_path=ROOT/'manifest.json'
+    if manifest_path.exists():
+        restore_frozen_manifest(manifest_path)
+        return
     commit = git('rev-parse', 'HEAD').decode().strip()
     assert commit == '7f7ecc7e1eaca78107e3affe7cb5abd9427e139a', 'metadata commit differs from the frozen protocol'
     mapping = json.loads(git('show', 'HEAD:leaf-map.json'))

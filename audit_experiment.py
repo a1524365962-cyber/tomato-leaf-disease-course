@@ -7,9 +7,11 @@ import subprocess
 from collections import Counter, defaultdict
 from pathlib import Path
 import numpy as np
+from verify_artifacts import verify
 ROOT=Path(__file__).resolve().parent
 
 def main():
+    verify(ROOT)  # Also bind every prediction path/label to the frozen manifest.
     rows=json.loads((ROOT/'manifest.json').read_text())['rows']
     checks={}
     for key in ('path','sha256','pixel_sha256','leaf_group'):
