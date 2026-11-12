@@ -8,15 +8,11 @@ Based on Convolutional Neural Networks
 
 单位：________________________
 
-Author: ________    Affiliation: ________________________
+代码与模型权重（GitHub）：https://github.com/a1524365962-cyber/tomato-leaf-disease-course
 
 摘要  针对有限样本条件下番茄叶片病害的图像识别问题，本文在PlantVillage公开数据中构建七分类实验，对比从头训练的小型卷积神经网络、ImageNet预训练ResNet18以及加入几何和颜色增强的ResNet18。实验保留可核对叶片标识的3500张图像，按叶片标识共现关系合并为1799个互斥组，再划分为2448张训练图像、512张验证图像和540张测试图像。三种配置均训练10轮，并用三个随机种子重复。增强模型在原始测试集上的准确率为97.65%±1.30%，宏平均F1为97.59%±1.35%，其中±表示三个种子的样本标准差；相对未增强ResNet18，宏平均F1平均增加0.70个百分点，但种子间结果并不一致。在亮度降至原图60%的测试中，增强模型宏平均F1提高14.38个百分点；高斯模糊测试未呈现一致改善。结果表明，迁移学习与增强能够形成有效的受控图像分类方案，但增强收益取决于扰动类型，不能据此推断真实田间诊断能力。
 
 关键词  番茄叶片；病害识别；卷积神经网络；迁移学习；数据增强
-
-Abstract  This study investigates tomato leaf disease recognition with limited training data. A small convolutional neural network trained from scratch is compared with an ImageNet-pretrained ResNet18 and its augmented counterpart. A balanced subset of 3,500 PlantVillage images is restricted to seven classes with traceable leaf identities. Co-occurring identity labels are merged into 1,799 disjoint groups, producing 2,448 training, 512 validation, and 540 test images. Each configuration is trained for ten epochs with three random seeds, and checkpoints are selected by validation macro-F1 only. The augmented model achieves 97.65% ± 1.30% accuracy and 97.59% ± 1.35% macro-F1 on the clean test set. Its mean macro-F1 gain over unaugmented ResNet18 is 0.70 percentage points, with inconsistent seed-wise improvements. Under a brightness factor of 0.6, the paired mean gain is 14.38 percentage points, whereas Gaussian blur shows no consistent benefit. These findings support a practical controlled-image classification baseline but do not establish field diagnostic performance. Reported deviations quantify optimization-seed variability on a fixed split rather than uncertainty across farms or acquisition sites.
-
-Keywords  tomato leaves; disease recognition; convolutional neural network; transfer learning; data augmentation
 
 I  引言
 

@@ -8,6 +8,7 @@ from docx.enum.section import WD_SECTION_START
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from word_math import append_math, run as mr, sequence as ms, sub, fraction, summation
 
 ROOT=Path(__file__).resolve().parent
@@ -43,6 +44,18 @@ def p(t,style=None,size=None,indent=True):
         for r in x.runs:r.font.size=Pt(size)
     return x
 def heading(t,level=1):p(t,f'Heading {level}',indent=False)
+def github_link():
+    url='https://github.com/a1524365962-cyber/tomato-leaf-disease-course'
+    x=p('代码与模型权重（GitHub）：',size=9,indent=False)
+    x.alignment=WD_ALIGN_PARAGRAPH.CENTER;x.paragraph_format.space_after=Pt(5)
+    link=OxmlElement('w:hyperlink');link.set(qn('r:id'),x.part.relate_to(url,RT.HYPERLINK,is_external=True))
+    run=OxmlElement('w:r');props=OxmlElement('w:rPr')
+    fonts=OxmlElement('w:rFonts');fonts.set(qn('w:ascii'),'Times New Roman');fonts.set(qn('w:hAnsi'),'Times New Roman');props.append(fonts)
+    size=OxmlElement('w:sz');size.set(qn('w:val'),'18');props.append(size)
+    color=OxmlElement('w:color');color.set(qn('w:val'),'0563C1');props.append(color)
+    underline=OxmlElement('w:u');underline.set(qn('w:val'),'single');props.append(underline)
+    run.append(props);value=OxmlElement('w:t');value.text=url;run.append(value);link.append(run);x._p.append(link)
+    text_blocks[-1]+=url
 def equation(number,linear,*items):
     x=doc.add_paragraph();x.alignment=WD_ALIGN_PARAGRAPH.CENTER
     x.paragraph_format.first_line_indent=Pt(0);x.paragraph_format.space_after=Pt(5);x.paragraph_format.keep_together=True
@@ -98,15 +111,14 @@ def widefigure(name,caption):
 title=p('基于卷积神经网络的\n农作物叶片病害识别','Title',indent=False);title.alignment=WD_ALIGN_PARAGRAPH.CENTER;title.paragraph_format.space_after=Pt(6)
 for border in list(title._p.get_or_add_pPr().findall(qn('w:pBdr'))): title._p.pPr.remove(border)
 en=p('Crop Leaf Disease Recognition\nBased on Convolutional Neural Networks',size=12,indent=False);en.alignment=WD_ALIGN_PARAGRAPH.CENTER
-for t in ['姓名：________    学号：________','单位：________________________','Author: ________    Affiliation: ________________________']:
+for t in ['姓名：________    学号：________','单位：________________________']:
     x=p(t,size=10,indent=False);x.alignment=WD_ALIGN_PARAGRAPH.CENTER;x.paragraph_format.space_after=Pt(2)
+github_link()
 body=doc.add_section(WD_SECTION_START.CONTINUOUS)
 cols=body._sectPr.find(qn('w:cols'));cols.set(qn('w:num'),'2');cols.set(qn('w:space'),'340')
 
 p('摘要  针对有限样本条件下番茄叶片病害的图像识别问题，本文在PlantVillage公开数据中构建七分类实验，对比从头训练的小型卷积神经网络、ImageNet预训练ResNet18以及加入几何和颜色增强的ResNet18。实验保留可核对叶片标识的3500张图像，按叶片标识共现关系合并为1799个互斥组，再划分为2448张训练图像、512张验证图像和540张测试图像。三种配置均训练10轮，并用三个随机种子重复。增强模型在原始测试集上的准确率为97.65%±1.30%，宏平均F1为97.59%±1.35%，其中±表示三个种子的样本标准差；相对未增强ResNet18，宏平均F1平均增加0.70个百分点，但种子间结果并不一致。在亮度降至原图60%的测试中，增强模型宏平均F1提高14.38个百分点；高斯模糊测试未呈现一致改善。结果表明，迁移学习与增强能够形成有效的受控图像分类方案，但增强收益取决于扰动类型，不能据此推断真实田间诊断能力。',size=9.5,indent=False)
 p('关键词  番茄叶片；病害识别；卷积神经网络；迁移学习；数据增强',size=9.5,indent=False)
-p('Abstract  This study investigates tomato leaf disease recognition with limited training data. A small convolutional neural network trained from scratch is compared with an ImageNet-pretrained ResNet18 and its augmented counterpart. A balanced subset of 3,500 PlantVillage images is restricted to seven classes with traceable leaf identities. Co-occurring identity labels are merged into 1,799 disjoint groups, producing 2,448 training, 512 validation, and 540 test images. Each configuration is trained for ten epochs with three random seeds, and checkpoints are selected by validation macro-F1 only. The augmented model achieves 97.65% ± 1.30% accuracy and 97.59% ± 1.35% macro-F1 on the clean test set. Its mean macro-F1 gain over unaugmented ResNet18 is 0.70 percentage points, with inconsistent seed-wise improvements. Under a brightness factor of 0.6, the paired mean gain is 14.38 percentage points, whereas Gaussian blur shows no consistent benefit. These findings support a practical controlled-image classification baseline but do not establish field diagnostic performance. Reported deviations quantify optimization-seed variability on a fixed split rather than uncertainty across farms or acquisition sites.',size=9.5,indent=False)
-p('Keywords  tomato leaves; disease recognition; convolutional neural network; transfer learning; data augmentation',size=9.5,indent=False)
 
 heading('I  引言')
 p('农作物叶片出现的斑点、霉斑和黄化等外观变化，为利用计算机视觉开展病害辅助识别提供了可观察信息。人工判断依赖经验，面向图像的分类模型则能够把叶片照片映射到预先定义的类别。PlantVillage项目公开了健康与患病叶片图像，为这类方法提供了可复现的数据来源[1,2]。不过，在背景相对统一的数据中取得较高识别率，并不等于模型已经适用于复杂田间环境。')
@@ -201,6 +213,6 @@ for r in [
 end=doc.add_section(WD_SECTION_START.CONTINUOUS);end._sectPr.find(qn('w:cols')).set(qn('w:num'),'1')
 footer=body.footer.paragraphs[0];footer.alignment=WD_ALIGN_PARAGRAPH.CENTER
 field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');footer._p.append(field)
-target=OUT/(os.environ.get('PAPER_OUTPUT_STEM','农作物叶片病害识别_全面终审版')+'.docx');doc.save(target)
+target=OUT/(os.environ.get('PAPER_OUTPUT_STEM','农作物叶片病害识别_中文摘要含GitHub版')+'.docx');doc.save(target)
 (ROOT/'paper_text.md').write_text('\n\n'.join(text_blocks),encoding='utf-8')
 print(target)
